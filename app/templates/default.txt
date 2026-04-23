@@ -1,0 +1,3 @@
+Documento generado para expediente {{ expediente.id }}
+Actor: {{ actor }}
+Demandado: {{ demandado }}
