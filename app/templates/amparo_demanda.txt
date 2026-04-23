@@ -1,0 +1,15 @@
+SEÑOR JUEZ:
+
+{{ actor.nombre }}, por derecho propio, con domicilio en {{ actor.domicilio }}, a V.S. me presento y digo:
+
+I. OBJETO
+
+Que vengo a promover acción de amparo contra {{ demandado.nombre }}, a fin de que se ordene {{ objeto }}.
+
+II. HECHOS
+
+{{ hechos }}
+
+Proveer de conformidad,
+
+SERÁ JUSTICIA.

@@ -1,0 +1,9 @@
+SEÑOR JUEZ:
+
+{{ actor.nombre }}, en autos caratulados "{{ expediente.caratula }}", a V.S. digo:
+
+Que solicito se dicte medida cautelar urgente contra {{ demandado.nombre }}, a fin de garantizar {{ objeto }}.
+
+Proveer de conformidad,
+
+SERÁ JUSTICIA.
