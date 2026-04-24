@@ -133,3 +133,12 @@ def crear_actuacion(expediente_id, tipo, fecha, descripcion):
 
     db.commit()
     db.close()
+    
+def marcar_plazo_cumplido(plazo_id):
+    db = SessionLocal()
+
+    plazo = db.query(Plazo).get(plazo_id)
+    plazo.cumplido = True
+
+    db.commit()
+    db.close()
