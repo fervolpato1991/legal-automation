@@ -33,5 +33,14 @@ resultado = procesar_actuacion(
     }
 )
 
+resultado_traslado = procesar_actuacion(
+    expediente_id=exp.id,
+    tipo="Traslado",
+    descripcion="Se corre traslado por 5 días"
+)
+
 print("\n--- DOCUMENTO GENERADO ---\n")
 print(resultado)
+
+print("\n--- TRASLADO ---\n")
+print(resultado_traslado)

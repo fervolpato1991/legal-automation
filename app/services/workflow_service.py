@@ -5,10 +5,13 @@ from app.models.actuacion import Actuacion
 from app.models.expediente import Expediente
 from app.models.estado import EstadoProcesal
 from app.models.documento import Documento
+from app.models.plazo import Plazo
 
 from app.services.rules import obtener_nuevo_estado_por_actuacion
 from app.services.template_selector import seleccionar_template_por_estado
 from app.services.template_engine import render_template
+from app.services.plazo_service import sumar_dias_habiles
+from app.services.rules import obtener_plazo_por_actuacion
 
 
 def procesar_actuacion(expediente_id, tipo, descripcion, contexto_extra=None):
@@ -33,6 +36,21 @@ def procesar_actuacion(expediente_id, tipo, descripcion, contexto_extra=None):
 
         if nuevo_estado:
             exp.estado = nuevo_estado
+
+    dias_plazo = obtener_plazo_por_actuacion(tipo)
+
+    if dias_plazo:
+        fecha_inicio = act.fecha
+        fecha_vencimiento = sumar_dias_habiles(fecha_inicio, dias_plazo)
+
+        plazo = Plazo(
+            tipo=tipo,
+            fecha_inicio=fecha_inicio,
+            fecha_vencimiento=fecha_vencimiento,
+            expediente_id=expediente_id
+        )
+
+        db.add(plazo)
 
     template_name = seleccionar_template_por_estado(exp)
 

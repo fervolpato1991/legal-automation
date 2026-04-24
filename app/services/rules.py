@@ -9,3 +9,13 @@ def obtener_nuevo_estado_por_actuacion(tipo_actuacion):
     }
 
     return reglas.get(tipo_actuacion)
+
+def obtener_plazo_por_actuacion(tipo_actuacion):
+
+    reglas_plazos = {
+        "Traslado": 5,
+        "Contestacion": 5,
+        "Apelacion": 3
+    }
+
+    return reglas_plazos.get(tipo_actuacion)
