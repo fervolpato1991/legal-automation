@@ -1,0 +1,12 @@
+SEÑOR JUEZ:
+
+{{ demandado.nombre }}, por derecho propio/representación legal, en autos caratulados "{{ expediente.caratula }}", a V.S. digo:
+Que vengo en tiempo y forma a contestar el traslado del amparo interpuesto en mi contra.
+
+Niego los hechos y el derecho invocados por la contraparte, solicitando el rechazo de la acción en base a , por no existir arbitrariedad ni ilegalidad manifiesta en mi proceder.
+Ofrezco como prueba:
+
+Por lo expuesto, pido se rechace la demanda con costas.
+
+Proveer de conformidad,
+SERÁ JUSTICIA.
