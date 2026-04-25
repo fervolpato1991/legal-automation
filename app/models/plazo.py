@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, Boolean, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.db.db import Base
 
@@ -14,3 +14,12 @@ class Plazo(Base):
     expediente_id = Column(Integer, ForeignKey("expedientes.id"))
 
     expediente = relationship("Expediente", back_populates="plazos")
+
+    __table_args__ = (
+        UniqueConstraint(
+            "expediente_id",
+            "tipo",
+            "fecha_vencimiento",
+            name="uq_plazo_unico"
+        ),
+    )

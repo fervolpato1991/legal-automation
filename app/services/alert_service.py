@@ -7,35 +7,35 @@ from sqlalchemy.orm import joinedload
 def obtener_dashboard_plazos():
     db = SessionLocal()
 
-    hoy = date.today()
-    limite = hoy + timedelta(days=3)
+    try:
+        hoy = date.today()
+        limite = hoy + timedelta(days=3)
 
-    vencidos = db.query(Plazo).options(
-        joinedload(Plazo.expediente)
-    ).filter(
-        Plazo.fecha_vencimiento < hoy,
-        Plazo.cumplido == False
-    ).order_by(Plazo.fecha_vencimiento.asc()).all()
+        base_query = db.query(Plazo).options(
+            joinedload(Plazo.expediente)
+        ).filter(
+            Plazo.cumplido == False
+        )
 
-    proximos = db.query(Plazo).options(
-        joinedload(Plazo.expediente)
-    ).filter(
-        Plazo.fecha_vencimiento >= hoy,
-        Plazo.fecha_vencimiento <= limite,
-        Plazo.cumplido == False
-    ).order_by(Plazo.fecha_vencimiento.asc()).all()
+        vencidos = base_query.filter(
+            Plazo.fecha_vencimiento < hoy
+        ).order_by(Plazo.fecha_vencimiento.asc()).all()
 
-    futuros = db.query(Plazo).options(
-        joinedload(Plazo.expediente)
-    ).filter(
-        Plazo.fecha_vencimiento > limite,
-        Plazo.cumplido == False
-    ).order_by(Plazo.fecha_vencimiento.asc()).all()
+        proximos = base_query.filter(
+            Plazo.fecha_vencimiento >= hoy,
+            Plazo.fecha_vencimiento <= limite
+        ).order_by(Plazo.fecha_vencimiento.asc()).all()
 
-    db.close()
+        futuros = base_query.filter(
+            Plazo.fecha_vencimiento > limite
+        ).order_by(Plazo.fecha_vencimiento.asc()).all()
 
-    return {
-        "vencidos": vencidos,
-        "proximos": proximos,
-        "futuros": futuros
-    }
+        return {
+            "vencidos": vencidos,
+            "proximos": proximos,
+            "futuros": futuros
+        }
+
+    finally:
+        db.close()
+    

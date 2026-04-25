@@ -1,15 +1,25 @@
 from app.services.alert_service import obtener_dashboard_plazos
+from app.services.action_rules import sugerir_accion
 
 data = obtener_dashboard_plazos()
 
-print("\n🔴 VENCIDOS\n")
-for p in data["vencidos"]:
-    print(f"{p.expediente.caratula} | {p.tipo} | {p.fecha_vencimiento}")
+def mostrar_seccion(titulo, plazos):
+    print(f"\n{titulo}\n")
 
-print("\n🟠 PRÓXIMOS (≤3 días)\n")
-for p in data["proximos"]:
-    print(f"{p.expediente.caratula} | {p.tipo} | {p.fecha_vencimiento}")
+    for p in plazos:
+        sugerencia = sugerir_accion(p)
 
-print("\n🟢 FUTUROS\n")
-for p in data["futuros"]:
-    print(f"{p.expediente.caratula} | {p.tipo} | {p.fecha_vencimiento}")
+        print(f"{p.expediente.caratula}")
+        print(f"Tipo: {p.tipo}")
+        print(f"Vence: {p.fecha_vencimiento}")
+
+        if sugerencia:
+            print(f"👉 Acción: {sugerencia['accion']}")
+            print(f"📄 Documento sugerido: {sugerencia['documento']}")
+
+        print("-" * 40)
+
+
+mostrar_seccion("🔴 VENCIDOS", data["vencidos"])
+mostrar_seccion("🟠 PRÓXIMOS (≤3 días)", data["proximos"])
+mostrar_seccion("🟢 FUTUROS", data["futuros"])
