@@ -35,6 +35,11 @@
         {{ pl.tipo }} - {{ pl.fecha_vencimiento }}
         {% if not pl.cumplido %}
             <a href="/generar/{{ pl.id }}" class="btn btn-sm btn-primary">Generar</a>
+            <a href="/plazo/{{ pl.id }}/cumplir" class="btn btn-sm btn-success">
+                Marcar cumplido
+            </a>
+        {% else %}
+          <span class="badge bg-success">✔ Cumplido</span>
         {% endif %}
     </li>
 {% endfor %}
@@ -46,8 +51,12 @@
 <ul>
 {% for d in exp.documentos %}
     <li>
-        {{ d.tipo }}
-    </li>
+    {{ d.tipo }} -
+    <a href="/documento/{{ d.id }}">Abrir</a>
+    <a href="/documento/{{ d.id }}" class="btn btn-sm btn-outline-primary">
+        Ver
+    </a>
+</li>
 {% endfor %}
 </ul>
 

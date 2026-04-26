@@ -55,9 +55,45 @@ def ver_expediente(id):
         joinedload(Expediente.documentos)
     ).get(id)
 
+    expediente.documentos.sort(key=lambda d: d.id, reverse=True)
+
+    docs_unicos = {}
+    for d in expediente.documentos:
+        docs_unicos[d.tipo.upper()] = d
+
+    expediente.documentos = list(docs_unicos.values())
+
     db.close()
 
     return render_template("expediente.html", exp=expediente)
+
+@app.route("/documento/<int:id>")
+def ver_documento(id):
+    db = SessionLocal()
+
+    doc = db.query(Documento).options(
+        joinedload(Documento.expediente)
+    ).get(id)
+
+    db.close()
+
+    return render_template("documento.html", doc=doc)
+
+@app.route("/plazo/<int:id>/cumplir")
+def cumplir_plazo(id):
+    db = SessionLocal()
+
+    plazo = db.query(Plazo).get(id)
+
+    if plazo:
+        plazo.cumplido = True
+        db.commit()
+
+        expediente_id = plazo.expediente_id
+
+    db.close()
+
+    return redirect(f"/expediente/{expediente_id}")
 
 if __name__ == "__main__":
     app.run(debug=True)
