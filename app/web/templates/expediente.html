@@ -1,0 +1,15 @@
+<h1>{{ expediente.caratula }}</h1>
+
+<h3>📌 Plazos</h3>
+<ul>
+{% for p in plazos %}
+    <li>{{ p.tipo }} - {{ p.vence }}</li>
+{% endfor %}
+</ul>
+
+<h3>📄 Documentos</h3>
+<ul>
+{% for d in documentos %}
+    <li>{{ d.nombre }}</li>
+{% endfor %}
+</ul>

@@ -11,4 +11,4 @@ class Documento(Base):
 
     expediente_id = Column(Integer, ForeignKey("expedientes.id"))
 
-    expediente = relationship("Expediente")
+    expediente = relationship("Expediente", back_populates="documentos")

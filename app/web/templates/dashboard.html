@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Jurídico</title>
+</head>
+<body class="container mt-4">
+
+<h1 class="mb-4">📊 Dashboard Jurídico</h1>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-success">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div class="row">
+
+    <div class="col-md-4">
+        <h3 class="text-danger">🔴 Vencidos</h3>
+        {% for p in vencidos %}
+            <div class="card mb-2 border-danger">
+                <div class="card-body">
+                    <h5>
+                        <a href="/expediente/{{ p.expediente_id }}">
+                            {{ p.caratula }}
+                        </a>
+                    </h5>
+                    <p>{{ p.tipo }} - {{ p.vence }}</p>
+                    <p><b>{{ p.accion }}</b></p>
+                    <a href="/generar/{{ p.id }}" class="btn btn-danger btn-sm">
+                        Generar
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4">
+        <h3 class="text-warning">🟠 Próximos</h3>
+        {% for p in proximos %}
+            <div class="card mb-2 border-warning">
+                <div class="card-body">
+                    <h5>{{ p.caratula }}</h5>
+                    <p>{{ p.tipo }} - {{ p.vence }}</p>
+                    <p><b>{{ p.accion }}</b></p>
+                    <a href="/generar/{{ p.id }}" class="btn btn-warning btn-sm">
+                        Generar
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4">
+        <h3 class="text-success">🟢 Futuros</h3>
+        {% for p in futuros %}
+            <div class="card mb-2 border-success">
+                <div class="card-body">
+                    <h5>{{ p.caratula }}</h5>
+                    <p>{{ p.tipo }} - {{ p.vence }}</p>
+                    <p><b>{{ p.accion }}</b></p>
+                    <a href="/generar/{{ p.id }}" class="btn btn-success btn-sm">
+                        Generar
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+</body>
+</html>

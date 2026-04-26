@@ -16,9 +16,3 @@ app/
 - crud/
 - services/
 - templates/
-
-## Próximos pasos
-
-- Motor de reglas
-- Selector automático de templates
-- Interfaz web

@@ -17,3 +17,4 @@ class Expediente(Base):
     partes = relationship("Parte", back_populates="expediente")
     actuaciones = relationship("Actuacion", back_populates="expediente")
     plazos = relationship("Plazo", back_populates="expediente")
+    documentos = relationship("Documento", back_populates="expediente")
