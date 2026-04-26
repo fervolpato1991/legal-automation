@@ -7,6 +7,7 @@ from app.models.expediente import Expediente
 from app.models.documento import Documento
 from flask import flash, abort
 from app.db.db import SessionLocal
+from sqlalchemy.orm import joinedload
 
 app = Flask(__name__)
 app.secret_key = "clave-super-secreta"
@@ -48,20 +49,15 @@ def generar(plazo_id):
 def ver_expediente(id):
     db = SessionLocal()
 
-    try:
-        expediente = db.get(Expediente, id)
+    expediente = db.query(Expediente).options(
+        joinedload(Expediente.partes),
+        joinedload(Expediente.plazos),
+        joinedload(Expediente.documentos)
+    ).get(id)
 
-        if not expediente:
-            abort(404)
+    db.close()
 
-        return render_template(
-            "expediente.html",
-            expediente=expediente,
-            plazos=expediente.plazos,
-            documentos=expediente.documentos
-        )
-    finally:
-        db.close()
+    return render_template("expediente.html", exp=expediente)
 
 if __name__ == "__main__":
     app.run(debug=True)

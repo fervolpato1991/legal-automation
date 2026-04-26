@@ -23,9 +23,7 @@
             <div class="card mb-2 border-danger">
                 <div class="card-body">
                     <h5>
-                        <a href="/expediente/{{ p.expediente_id }}">
-                            {{ p.caratula }}
-                        </a>
+                        <a href="{{ url_for('ver_expediente', id=p.expediente_id) }}">{{ p.caratula }}</a>
                     </h5>
                     <p>{{ p.tipo }} - {{ p.vence }}</p>
                     <p><b>{{ p.accion }}</b></p>
@@ -42,7 +40,9 @@
         {% for p in proximos %}
             <div class="card mb-2 border-warning">
                 <div class="card-body">
-                    <h5>{{ p.caratula }}</h5>
+                    <h5> <a href="{{ url_for('ver_expediente', id=p.expediente_id) }}">
+                        {{ p.caratula }}
+                    </a></h5>
                     <p>{{ p.tipo }} - {{ p.vence }}</p>
                     <p><b>{{ p.accion }}</b></p>
                     <a href="/generar/{{ p.id }}" class="btn btn-warning btn-sm">
@@ -58,7 +58,9 @@
         {% for p in futuros %}
             <div class="card mb-2 border-success">
                 <div class="card-body">
-                    <h5>{{ p.caratula }}</h5>
+                    <a href="{{ url_for('ver_expediente', id=p.expediente_id) }}">
+                        {{ p.caratula }}
+                    </a>
                     <p>{{ p.tipo }} - {{ p.vence }}</p>
                     <p><b>{{ p.accion }}</b></p>
                     <a href="/generar/{{ p.id }}" class="btn btn-success btn-sm">

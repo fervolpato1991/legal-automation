@@ -1,15 +1,55 @@
-<h1>{{ expediente.caratula }}</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expediente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
 
-<h3>📌 Plazos</h3>
+<body class="container mt-4">
+
+<h1>{{ exp.caratula }}</h1>
+
+<hr>
+
+<h3>📌 Datos</h3>
 <ul>
-{% for p in plazos %}
-    <li>{{ p.tipo }} - {{ p.vence }}</li>
+    <li>Jurisdicción: {{ exp.jurisdiccion }}</li>
+    <li>Tipo: {{ exp.tipo_proceso }}</li>
+</ul>
+
+<hr>
+
+<h3>👥 Partes</h3>
+<ul>
+{% for p in exp.partes %}
+    <li>{{ p.tipo }}: {{ p.nombre }}</li>
 {% endfor %}
 </ul>
+
+<hr>
+
+<h3>⏳ Plazos</h3>
+<ul>
+{% for pl in exp.plazos %}
+    <li>
+        {{ pl.tipo }} - {{ pl.fecha_vencimiento }}
+        {% if not pl.cumplido %}
+            <a href="/generar/{{ pl.id }}" class="btn btn-sm btn-primary">Generar</a>
+        {% endif %}
+    </li>
+{% endfor %}
+</ul>
+
+<hr>
 
 <h3>📄 Documentos</h3>
 <ul>
-{% for d in documentos %}
-    <li>{{ d.nombre }}</li>
+{% for d in exp.documentos %}
+    <li>
+        {{ d.tipo }}
+    </li>
 {% endfor %}
 </ul>
+
+</body>
+</html>
