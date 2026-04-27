@@ -1,0 +1,14 @@
+<h2>Nueva Actuación</h2>
+
+<form method="POST" action="/expediente/{{ expediente_id }}/actuacion/nueva">
+
+    <label>Tipo</label>
+    <input type="text" name="tipo" class="form-control" required>
+
+    <label>Descripción</label>
+    <textarea name="descripcion" class="form-control"></textarea>
+
+    <br>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</form>

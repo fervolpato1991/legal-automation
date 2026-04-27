@@ -59,6 +59,47 @@
 </li>
 {% endfor %}
 </ul>
+<hr>
+
+<h3>📚 Actuaciones</h3>
+
+<ul>
+{% for a in exp.actuaciones %}
+    <li>
+        {{ a.fecha }} - {{ a.tipo }} - {{ a.descripcion }}
+    </li>
+{% endfor %}
+</ul>
+<a href="/expediente/{{ exp.id }}/actuacion/nueva" class="btn btn-primary mb-3">
+    ➕ Nueva actuación
+</a>
+
+<hr>
+
+<h3>🕒 Timeline</h3>
+
+<ul class="list-group">
+{% for e in eventos %}
+    <li class="list-group-item">
+
+        <strong>{{ e.fecha }}</strong> |
+
+        {% if e.tipo == "ACTUACION" %}
+            📚
+        {% elif e.tipo == "PLAZO" %}
+            ⏳
+        {% elif e.tipo == "DOCUMENTO" %}
+            📄
+        {% endif %}
+
+        <strong>{{ e.titulo }}</strong>
+
+        <br>
+        <small>{{ e.detalle }}</small>
+
+    </li>
+{% endfor %}
+</ul>
 
 </body>
 </html>

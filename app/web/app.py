@@ -5,9 +5,11 @@ from app.services.action_executor import generar_documento_desde_plazo
 from app.models.plazo import Plazo
 from app.models.expediente import Expediente
 from app.models.documento import Documento
-from flask import flash, abort
+from app.models.actuacion import Actuacion
+from flask import flash, request
 from app.db.db import SessionLocal
 from sqlalchemy.orm import joinedload
+from datetime import datetime, date
 
 app = Flask(__name__)
 app.secret_key = "clave-super-secreta"
@@ -16,6 +18,7 @@ app.secret_key = "clave-super-secreta"
 @app.route("/")
 def dashboard():
     data = obtener_dashboard_plazos()
+    db = SessionLocal()
 
     def enrich(plazos):
         resultado = []
@@ -31,11 +34,14 @@ def dashboard():
             })
         return resultado
 
+    expedientes = db.query(Expediente).all()
+
     return render_template(
         "dashboard.html",
         vencidos=enrich(data["vencidos"]),
         proximos=enrich(data["proximos"]),
-        futuros=enrich(data["futuros"])
+        futuros=enrich(data["futuros"]),
+        expedientes=expedientes
     )
 
 
@@ -52,8 +58,13 @@ def ver_expediente(id):
     expediente = db.query(Expediente).options(
         joinedload(Expediente.partes),
         joinedload(Expediente.plazos),
-        joinedload(Expediente.documentos)
+        joinedload(Expediente.documentos),
+        joinedload(Expediente.actuaciones)
     ).get(id)
+
+    if not expediente:
+        db.close()
+        return "Expediente no encontrado", 404
 
     expediente.documentos.sort(key=lambda d: d.id, reverse=True)
 
@@ -63,9 +74,45 @@ def ver_expediente(id):
 
     expediente.documentos = list(docs_unicos.values())
 
+    eventos = []
+    for a in expediente.actuaciones:
+        eventos.append({
+            "fecha": a.fecha,
+            "tipo": "ACTUACION",
+            "titulo": a.tipo,
+            "detalle": a.descripcion
+        })
+    for p in expediente.plazos:
+        eventos.append({
+            "fecha": p.fecha_inicio,
+            "tipo": "PLAZO",
+            "titulo": p.tipo,
+            "detalle": f"Vence: {p.fecha_vencimiento}"
+        })
+    for d in expediente.documentos:
+        eventos.append({
+            "fecha": getattr(d, "created_at", None),
+            "tipo": "DOCUMENTO",
+            "titulo": d.tipo,
+            "detalle": "Documento generado"
+        })
+        
+    def normalizar_fecha(f):
+        if f is None:
+            return datetime.min
+        if isinstance(f, datetime):
+            return f
+        return datetime.combine(f, datetime.min.time())
+    
+    eventos.sort(
+        key=lambda e: normalizar_fecha(e["fecha"]),
+        reverse=True
+    )
+
     db.close()
 
-    return render_template("expediente.html", exp=expediente)
+    return render_template("expediente.html", exp=expediente, eventos=eventos)
+
 
 @app.route("/documento/<int:id>")
 def ver_documento(id):
@@ -83,7 +130,9 @@ def ver_documento(id):
 def cumplir_plazo(id):
     db = SessionLocal()
 
-    plazo = db.query(Plazo).get(id)
+    plazo = db.query(Plazo).options(
+        joinedload(Plazo.expediente)
+    ).get(id)
 
     if plazo:
         plazo.cumplido = True
@@ -94,6 +143,31 @@ def cumplir_plazo(id):
     db.close()
 
     return redirect(f"/expediente/{expediente_id}")
+
+@app.route("/expediente/<int:id>/actuacion/nueva")
+def nueva_actuacion(id):
+    return render_template("nueva_actuacion.html", expediente_id=id)
+
+
+@app.route("/expediente/<int:id>/actuacion/nueva", methods=["POST"])
+def crear_actuacion(id):
+    db = SessionLocal()
+
+    tipo = request.form["tipo"]
+    descripcion = request.form["descripcion"]
+
+    actuacion = Actuacion(
+        tipo=tipo,
+        fecha=date.today(),
+        descripcion=descripcion,
+        expediente_id=id
+    )
+
+    db.add(actuacion)
+    db.commit()
+    db.close()
+
+    return redirect(f"/expediente/{id}")
 
 if __name__ == "__main__":
     app.run(debug=True)

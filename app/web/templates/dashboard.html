@@ -18,57 +18,81 @@
 <div class="row">
 
     <div class="col-md-4">
-        <h3 class="text-danger">🔴 Vencidos</h3>
-        {% for p in vencidos %}
-            <div class="card mb-2 border-danger">
-                <div class="card-body">
-                    <h5>
-                        <a href="{{ url_for('ver_expediente', id=p.expediente_id) }}">{{ p.caratula }}</a>
-                    </h5>
-                    <p>{{ p.tipo }} - {{ p.vence }}</p>
-                    <p><b>{{ p.accion }}</b></p>
-                    <a href="/generar/{{ p.id }}" class="btn btn-danger btn-sm">
-                        Generar
-                    </a>
-                </div>
-            </div>
+        <h3>📂 Expedientes</h3>
+
+        <div class="list-group">
+        {% for e in expedientes %}
+            <a href="{{ url_for('ver_expediente', id=e.id) }}" 
+               class="list-group-item list-group-item-action">
+
+                <strong>{{ e.caratula }}</strong><br>
+                <small>
+                    {{ e.tipo_proceso }} |
+                    {{ e.jurisdiccion }}
+                </small>
+
+            </a>
         {% endfor %}
+        </div>
     </div>
 
-    <div class="col-md-4">
-        <h3 class="text-warning">🟠 Próximos</h3>
-        {% for p in proximos %}
-            <div class="card mb-2 border-warning">
-                <div class="card-body">
-                    <h5> <a href="{{ url_for('ver_expediente', id=p.expediente_id) }}">
-                        {{ p.caratula }}
-                    </a></h5>
-                    <p>{{ p.tipo }} - {{ p.vence }}</p>
-                    <p><b>{{ p.accion }}</b></p>
-                    <a href="/generar/{{ p.id }}" class="btn btn-warning btn-sm">
-                        Generar
-                    </a>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
+    <div class="col-md-8">
 
-    <div class="col-md-4">
-        <h3 class="text-success">🟢 Futuros</h3>
-        {% for p in futuros %}
-            <div class="card mb-2 border-success">
-                <div class="card-body">
-                    <a href="{{ url_for('ver_expediente', id=p.expediente_id) }}">
-                        {{ p.caratula }}
-                    </a>
-                    <p>{{ p.tipo }} - {{ p.vence }}</p>
-                    <p><b>{{ p.accion }}</b></p>
-                    <a href="/generar/{{ p.id }}" class="btn btn-success btn-sm">
-                        Generar
-                    </a>
-                </div>
+        <div class="row">
+
+            <div class="col-md-4">
+                <h5 class="text-danger">🔴 Vencidos</h5>
+                {% for p in vencidos %}
+                    <div class="card mb-2 border-danger">
+                        <div class="card-body">
+                            <a href="{{ url_for('ver_expediente', id=p.expediente_id) }}">
+                                {{ p.caratula }}
+                            </a>
+                            <p>{{ p.tipo }} - {{ p.vence }}</p>
+                            <a href="/generar/{{ p.id }}" class="btn btn-sm btn-danger">
+                                Generar
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+
+            <div class="col-md-4">
+                <h5 class="text-warning">🟠 Próximos</h5>
+                {% for p in proximos %}
+                    <div class="card mb-2 border-warning">
+                        <div class="card-body">
+                            <a href="{{ url_for('ver_expediente', id=p.expediente_id) }}">
+                                {{ p.caratula }}
+                            </a>
+                            <p>{{ p.tipo }} - {{ p.vence }}</p>
+                            <a href="/generar/{{ p.id }}" class="btn btn-sm btn-warning">
+                                Generar
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-4">
+                <h5 class="text-success">🟢 Futuros</h5>
+                {% for p in futuros %}
+                    <div class="card mb-2 border-success">
+                        <div class="card-body">
+                            <a href="{{ url_for('ver_expediente', id=p.expediente_id) }}">
+                                {{ p.caratula }}
+                            </a>
+                            <p>{{ p.tipo }} - {{ p.vence }}</p>
+                            <a href="/generar/{{ p.id }}" class="btn btn-sm btn-success">
+                                Generar
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+
     </div>
 
 </div>
