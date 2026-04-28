@@ -8,11 +8,9 @@ from app.services.template_engine import render_template
 def generar_documento_desde_plazo(plazo_id):
     db = SessionLocal()
 
-    # 1. traer plazo + expediente + partes
     plazo = db.query(Plazo).get(plazo_id)
     exp = plazo.expediente
 
-    # 🔴 VALIDACIÓN: evitar duplicados
     doc_existente = db.query(Documento).filter_by(
         expediente_id=exp.id,
         tipo=plazo.tipo
@@ -22,7 +20,6 @@ def generar_documento_desde_plazo(plazo_id):
         db.close()
         return "Documento ya generado"
 
-    # 2. obtener sugerencia
     sugerencia = sugerir_accion(plazo)
 
     if not sugerencia or "documento" not in sugerencia:
@@ -31,7 +28,6 @@ def generar_documento_desde_plazo(plazo_id):
 
     template_name = sugerencia["documento"]
 
-    # 3. obtener partes
     actor = None
     demandado = None
 
@@ -41,17 +37,14 @@ def generar_documento_desde_plazo(plazo_id):
         elif p.tipo == "demandado":
             demandado = p
 
-    # 4. contexto
     contexto = {
         "expediente": exp,
         "actor": actor,
         "demandado": demandado,
     }
 
-    # 5. generar contenido
     contenido = render_template(template_name, contexto)
 
-    # 6. guardar documento
     doc = Documento(
         expediente_id=exp.id,
         tipo=plazo.tipo,

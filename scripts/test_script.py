@@ -15,28 +15,28 @@ from app.services.workflow_service import procesar_actuacion
 
 
 exp = crear_expediente(
-    caratula="Perez c/ PAMI s/ Amparo",
-    jurisdiccion="Federal",
-    tipo_proceso="Amparo"
+    caratula="Norberto c/ LPM s/ Daños y perjuicios",
+    jurisdiccion="Provincial",
+    tipo_proceso="Daños y perjuicios",
 )
 
-agregar_parte(exp.id, "Perez", "actor", domicilio="Calle Falsa 123")
-agregar_parte(exp.id, "PAMI", "demandado", domicilio="Avenida Siempre Viva 456")
+agregar_parte(exp.id, "Norberto", "actor", domicilio="Calle Olazabal 4523")
+agregar_parte(exp.id, "LPM", "demandado", domicilio="Avenida Epic 6656")
 
 resultado = procesar_actuacion(
     expediente_id=exp.id,
     tipo="Demanda",
     descripcion="Se presenta demanda",
     contexto_extra={
-        "objeto": "la cobertura integral de prestación médica",
-        "hechos": "El actor padece una patología..."
+        "objeto": "la cobertura integral de prestación bancaria",
+        "hechos": "El actor padece deudas..."
     }
 )
 
 resultado_traslado = procesar_actuacion(
     expediente_id=exp.id,
     tipo="Traslado",
-    descripcion="Se corre traslado por 5 días"
+    descripcion="Se corre traslado por 55 días"
 )
 
 print("\n--- DOCUMENTO GENERADO ---\n")

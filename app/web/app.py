@@ -10,6 +10,7 @@ from flask import flash, request
 from app.db.db import SessionLocal
 from sqlalchemy.orm import joinedload
 from datetime import datetime, date
+from app.services.rules_engine import regla_traslado
 
 app = Flask(__name__)
 app.secret_key = "clave-super-secreta"
@@ -76,7 +77,6 @@ def ver_expediente(id):
 
     eventos = []
 
-    # ACTUACIONES
     for a in expediente.actuaciones:
         eventos.append({
             "fecha": a.fecha,
@@ -85,7 +85,6 @@ def ver_expediente(id):
             "detalle": a.descripcion
         })
 
-    # PLAZOS
     for p in expediente.plazos:
         eventos.append({
             "fecha": p.fecha_inicio,
@@ -94,7 +93,6 @@ def ver_expediente(id):
             "detalle": f"Vence: {p.fecha_vencimiento}"
         })
 
-    # DOCUMENTOS
     for d in expediente.documentos:
         eventos.append({
             "fecha": getattr(d, "created_at", None),
@@ -216,7 +214,13 @@ def crear_actuacion(id):
         expediente_id=id
     )
 
+    expediente = db.query(Expediente).get(id)
+
     db.add(actuacion)
+    db.commit()
+
+    regla_traslado(expediente, actuacion, db)
+
     db.commit()
     db.close()
 
