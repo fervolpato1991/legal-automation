@@ -75,6 +75,8 @@ def ver_expediente(id):
     expediente.documentos = list(docs_unicos.values())
 
     eventos = []
+
+    # ACTUACIONES
     for a in expediente.actuaciones:
         eventos.append({
             "fecha": a.fecha,
@@ -82,6 +84,8 @@ def ver_expediente(id):
             "titulo": a.tipo,
             "detalle": a.descripcion
         })
+
+    # PLAZOS
     for p in expediente.plazos:
         eventos.append({
             "fecha": p.fecha_inicio,
@@ -89,6 +93,8 @@ def ver_expediente(id):
             "titulo": p.tipo,
             "detalle": f"Vence: {p.fecha_vencimiento}"
         })
+
+    # DOCUMENTOS
     for d in expediente.documentos:
         eventos.append({
             "fecha": getattr(d, "created_at", None),
@@ -96,23 +102,70 @@ def ver_expediente(id):
             "titulo": d.tipo,
             "detalle": "Documento generado"
         })
-        
+
+    hoy = date.today()
+
+    def clasificar_evento(e):
+        if not e["fecha"]:
+            return "historico"
+
+        f = e["fecha"]
+        if hasattr(f, "date"):
+            f = f.date()
+
+        if f == hoy:
+            return "hoy"
+        elif (hoy - f).days <= 2:
+            return "reciente"
+        else:
+            return "historico"
+
+    def prioridad_evento(e):
+        if e["tipo"] == "PLAZO":
+            return "alta"
+        elif e["tipo"] == "DOCUMENTO":
+            return "media"
+        return "baja"
+
+    def accion_evento(e):
+        if e["tipo"] == "PLAZO" and "Traslado" in e["titulo"]:
+            return "Preparar contestación"
+        return None
+    
+    for e in eventos:
+        e["categoria"] = clasificar_evento(e)
+        e["prioridad"] = prioridad_evento(e)
+        e["accion"] = accion_evento(e)
+
     def normalizar_fecha(f):
         if f is None:
             return datetime.min
         if isinstance(f, datetime):
             return f
         return datetime.combine(f, datetime.min.time())
-    
+
     eventos.sort(
         key=lambda e: normalizar_fecha(e["fecha"]),
         reverse=True
     )
 
+    eventos_agrupados = {
+        "hoy": [],
+        "reciente": [],
+        "historico": []
+    }
+
+    for e in eventos:
+        eventos_agrupados[e["categoria"]].append(e)
+
     db.close()
 
-    return render_template("expediente.html", exp=expediente, eventos=eventos)
-
+    return render_template(
+        "expediente.html",
+        exp=expediente,
+        eventos=eventos,
+        eventos_agrupados=eventos_agrupados
+    )
 
 @app.route("/documento/<int:id>")
 def ver_documento(id):

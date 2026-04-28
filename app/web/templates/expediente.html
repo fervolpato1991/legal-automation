@@ -78,28 +78,41 @@
 
 <h3>🕒 Timeline</h3>
 
-<ul class="list-group">
-{% for e in eventos %}
-    <li class="list-group-item">
-
-        <strong>{{ e.fecha }}</strong> |
-
-        {% if e.tipo == "ACTUACION" %}
-            📚
-        {% elif e.tipo == "PLAZO" %}
-            ⏳
-        {% elif e.tipo == "DOCUMENTO" %}
-            📄
-        {% endif %}
-
-        <strong>{{ e.titulo }}</strong>
-
-        <br>
+<h5>🔴 Hoy</h5>
+{% for e in eventos_agrupados.hoy %}
+<div class="card mb-2 border-danger">
+    <div class="card-body">
+        <strong>{{ e.titulo }}</strong><br>
         <small>{{ e.detalle }}</small>
 
-    </li>
+        {% if e.accion %}
+            <div class="mt-2">
+                👉 {{ e.accion }}
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endfor %}
-</ul>
+
+<h5>🟡 Reciente</h5>
+{% for e in eventos_agrupados.reciente %}
+<div class="card mb-2 border-warning">
+    <div class="card-body">
+        <strong>{{ e.titulo }}</strong><br>
+        <small>{{ e.detalle }}</small>
+    </div>
+</div>
+{% endfor %}
+
+<h5>🔵 Histórico</h5>
+{% for e in eventos_agrupados.historico %}
+<div class="card mb-2 border-secondary">
+    <div class="card-body">
+        <strong>{{ e.titulo }}</strong><br>
+        <small>{{ e.detalle }}</small>
+    </div>
+</div>
+{% endfor %}
 
 </body>
 </html>
