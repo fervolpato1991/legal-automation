@@ -11,6 +11,7 @@ from app.db.db import SessionLocal
 from sqlalchemy.orm import joinedload
 from datetime import datetime, date
 from app.services.rules_engine import regla_traslado
+from app.services.prioridad_service import calcular_prioridad
 
 app = Flask(__name__)
 app.secret_key = "clave-super-secreta"
@@ -21,10 +22,21 @@ def dashboard():
     data = obtener_dashboard_plazos()
     db = SessionLocal()
 
+    PRIORIDAD_ORDEN = {
+        "critico": 0,
+        "urgente": 1,
+        "medio": 2,
+        "bajo": 3,
+        "ok": 4
+    }
+
     def enrich(plazos):
         resultado = []
+
         for p in plazos:
             sugerencia = sugerir_accion(p)
+            prioridad = calcular_prioridad(p)
+
             resultado.append({
                 "id": p.id,
                 "expediente_id": p.expediente.id,
@@ -32,7 +44,16 @@ def dashboard():
                 "tipo": p.tipo,
                 "vence": p.fecha_vencimiento,
                 "accion": sugerencia["accion"] if sugerencia else "",
+                "prioridad": prioridad
             })
+
+        resultado.sort(
+            key=lambda x: (
+                PRIORIDAD_ORDEN.get(x["prioridad"], 99),
+                x["vence"] if x["vence"] else ""
+            )
+        )
+
         return resultado
 
     expedientes = db.query(Expediente).all()
@@ -44,7 +65,6 @@ def dashboard():
         futuros=enrich(data["futuros"]),
         expedientes=expedientes
     )
-
 
 @app.route("/generar/<int:plazo_id>")
 def generar(plazo_id):
