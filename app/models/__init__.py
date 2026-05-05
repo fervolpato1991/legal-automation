@@ -4,3 +4,4 @@ from .actuacion import Actuacion
 from .plazo import Plazo
 from .documento import Documento
 from .estado import EstadoProcesal
+from .regla import ReglaProcesal

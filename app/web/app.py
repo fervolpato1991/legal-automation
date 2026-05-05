@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, url_for
+from app.models.regla import ReglaProcesal
 from app.services.alert_service import obtener_dashboard_plazos
 from app.services.action_rules import sugerir_accion
 from app.services.action_executor import generar_documento_desde_plazo
@@ -10,7 +11,9 @@ from flask import flash, request
 from app.db.db import SessionLocal
 from sqlalchemy.orm import joinedload
 from datetime import datetime, date
-from app.services.rules_engine import regla_traslado
+
+from app.services.regla_service import aplicar_reglas
+'from app.services.rules_engine import regla_traslado'
 from app.services.prioridad_service import calcular_prioridad
 
 app = Flask(__name__)
@@ -239,12 +242,44 @@ def crear_actuacion(id):
     db.add(actuacion)
     db.commit()
 
-    regla_traslado(expediente, actuacion, db)
+    'regla_traslado(expediente, actuacion, db)'
+    aplicar_reglas(expediente, actuacion, db)
 
     db.commit()
     db.close()
 
     return redirect(f"/expediente/{id}")
+
+@app.route("/reglas")
+def ver_reglas():
+    db = SessionLocal()
+    reglas = db.query(ReglaProcesal).all()
+    db.close()
+
+    return render_template("reglas.html", reglas=reglas)
+
+@app.route("/reglas/nueva")
+def nueva_regla():
+    return render_template("nueva_regla.html")
+
+@app.route("/reglas/crear", methods=["POST"])
+def crear_regla():
+    db = SessionLocal()
+
+    regla = ReglaProcesal(
+        evento=request.form["evento"].lower(),
+        estado_destino=request.form["estado"],
+        generar_documento=bool(request.form.get("generar_documento")),
+        template=request.form.get("template"),
+        crear_plazo=bool(request.form.get("crear_plazo")),
+        dias_plazo=int(request.form.get("dias_plazo") or 0)
+    )
+
+    db.add(regla)
+    db.commit()
+    db.close()
+
+    return redirect("/reglas")
 
 if __name__ == "__main__":
     app.run(debug=True)

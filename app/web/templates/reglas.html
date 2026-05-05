@@ -1,0 +1,25 @@
+<h1>⚙️ Reglas del sistema</h1>
+
+<a href="/reglas/nueva" class="btn btn-primary mb-3">➕ Nueva regla</a>
+
+<table class="table">
+    <tr>
+        <th>Evento</th>
+        <th>Estado</th>
+        <th>Plazo</th>
+        <th>Documento</th>
+    </tr>
+
+    {% for r in reglas %}
+    <tr>
+        <td>{{ r.evento }}</td>
+        <td>{{ r.estado_destino }}</td>
+        <td>
+            {% if r.crear_plazo %}
+                {{ r.dias_plazo }} días
+            {% endif %}
+        </td>
+        <td>{{ r.template }}</td>
+    </tr>
+    {% endfor %}
+</table>

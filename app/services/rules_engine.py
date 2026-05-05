@@ -4,6 +4,7 @@ from app.models.documento import Documento
 from app.models.plazo import Plazo
 from app.services.template_service import render_template
 from app.services.workflow_service import cambiar_estado
+from app.services.regla_service import aplicar_reglas
 
 
 def regla_traslado(expediente, actuacion, db):
@@ -73,7 +74,7 @@ def regla_contestacion(expediente, actuacion, db):
         plazo.cumplido = True
 
 
-def ejecutar_reglas(expediente, actuacion, db):
+def aplicar_reglas(expediente, actuacion, db):
     reglas = [
         regla_traslado,
         regla_contestacion,

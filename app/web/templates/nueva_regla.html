@@ -1,0 +1,27 @@
+<h1>➕ Nueva regla</h1>
+
+<form method="POST" action="/reglas/crear">
+
+    <label>Evento</label>
+    <input name="evento" class="form-control">
+
+    <label>Estado destino</label>
+    <input name="estado" class="form-control">
+
+    <label>Template</label>
+    <input name="template" class="form-control">
+
+    <br>
+
+    <input type="checkbox" name="crear_plazo"> Crear plazo<br>
+    <input type="number" name="dias_plazo" placeholder="Días">
+
+    <br>
+
+    <input type="checkbox" name="generar_documento"> Generar documento
+
+    <br><br>
+
+    <button class="btn btn-success">Guardar</button>
+
+</form>
