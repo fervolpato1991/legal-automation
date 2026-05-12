@@ -1,196 +1,125 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard Jurídico</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+{% extends "base.html" %}
 
-<body class="container mt-4">
+{% block title %}
+Dashboard
+{% endblock %}
 
-<h1 class="mb-4">📊 Dashboard Jurídico</h1>
+{% block content %}
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <div class="alert alert-success">
-      {{ messages[0] }}
-    </div>
-  {% endif %}
-{% endwith %}
-
-<a href="/expediente/nuevo" class="btn btn-primary mb-3">
-    ➕ Nuevo expediente
-</a>
+<h1 class="mb-4">
+    📊 Dashboard Jurídico
+</h1>
 
 <div class="row">
 
-    <!-- 📂 EXPEDIENTES -->
     <div class="col-md-4">
-        <h3>📂 Expedientes</h3>
 
-        <div class="list-group">
-        {% for e in expedientes %}
-            <a href="{{ url_for('ver_expediente', id=e.id) }}" 
-               class="list-group-item list-group-item-action">
+        <h3 class="text-danger">
+            🔴 Vencidos
+        </h3>
 
-                <strong>{{ e.caratula }}</strong><br>
-                <small>
-                    {{ e.tipo_proceso }} |
-                    {{ e.jurisdiccion }}
-                </small>
+        {% for p in vencidos %}
 
-            </a>
-        {% endfor %}
+        <div class="card mb-2 border-danger">
+
+            <div class="card-body">
+
+                <h5>
+
+                    <a href="/expediente/{{ p.expediente_id }}">
+                        {{ p.caratula }}
+                    </a>
+
+                </h5>
+
+                <p>
+                    {{ p.tipo }} - {{ p.vence }}
+                </p>
+
+                <p>
+                    <b>{{ p.accion }}</b>
+                </p>
+
+            </div>
+
         </div>
+
+        {% endfor %}
+
     </div>
 
-    <!-- 📊 PLAZOS -->
-    <div class="col-md-8">
+    <div class="col-md-4">
 
-        <div class="row">
+        <h3 class="text-warning">
+            🟠 Próximos
+        </h3>
 
-            <!-- 🔴 VENCIDOS -->
-            <div class="col-md-4">
-                <h5 class="text-danger">🔴 Vencidos</h5>
+        {% for p in proximos %}
 
-                {% for p in vencidos %}
+        <div class="card mb-2 border-warning">
 
-                    {% if p.prioridad == "critico" %}
-                    <div class="card mb-2 border-danger bg-danger text-white">
-                    {% elif p.prioridad == "urgente" %}
-                    <div class="card mb-2 border-warning">
-                    {% elif p.prioridad == "medio" %}
-                    <div class="card mb-2 border-info">
-                    {% else %}
-                    <div class="card mb-2 border-success">
-                    {% endif %}
+            <div class="card-body">
 
-                        <div class="card-body">
+                <h5>
 
-                            <a href="{{ url_for('ver_expediente', id=p.expediente_id) }}">
-                                {{ p.caratula }}
-                            </a>
+                    <a href="/expediente/{{ p.expediente_id }}">
+                        {{ p.caratula }}
+                    </a>
 
-                            <p>{{ p.tipo }} - {{ p.vence }}</p>
+                </h5>
 
-                            <p>
-                            {% if p.prioridad == "critico" %}
-                            🔥 VENCIDO — acción inmediata
-                            {% elif p.prioridad == "urgente" %}
-                            ⚠️ Vence pronto
-                            {% elif p.prioridad == "medio" %}
-                            ⏳ En plazo
-                            {% else %}
-                            ✔ Sin urgencia
-                            {% endif %}
-                            </p>
+                <p>
+                    {{ p.tipo }} - {{ p.vence }}
+                </p>
 
-                            <a href="/generar/{{ p.id }}" class="btn btn-sm btn-danger">
-                                Generar
-                            </a>
+                <p>
+                    <b>{{ p.accion }}</b>
+                </p>
 
-                        </div>
-                    </div>
-
-                {% endfor %}
-            </div>
-
-            <!-- 🟠 PRÓXIMOS -->
-            <div class="col-md-4">
-                <h5 class="text-warning">🟠 Próximos</h5>
-
-                {% for p in proximos %}
-
-                    {% if p.prioridad == "critico" %}
-                    <div class="card mb-2 border-danger bg-danger text-white">
-                    {% elif p.prioridad == "urgente" %}
-                    <div class="card mb-2 border-warning">
-                    {% elif p.prioridad == "medio" %}
-                    <div class="card mb-2 border-info">
-                    {% else %}
-                    <div class="card mb-2 border-success">
-                    {% endif %}
-
-                        <div class="card-body">
-
-                            <a href="{{ url_for('ver_expediente', id=p.expediente_id) }}">
-                                {{ p.caratula }}
-                            </a>
-
-                            <p>{{ p.tipo }} - {{ p.vence }}</p>
-
-                            <p>
-                            {% if p.prioridad == "critico" %}
-                            🔥 VENCIDO — acción inmediata
-                            {% elif p.prioridad == "urgente" %}
-                            ⚠️ Vence pronto
-                            {% elif p.prioridad == "medio" %}
-                            ⏳ En plazo
-                            {% else %}
-                            ✔ Sin urgencia
-                            {% endif %}
-                            </p>
-
-                            <a href="/generar/{{ p.id }}" class="btn btn-sm btn-warning">
-                                Generar
-                            </a>
-
-                        </div>
-                    </div>
-
-                {% endfor %}
-            </div>
-
-            <!-- 🟢 FUTUROS -->
-            <div class="col-md-4">
-                <h5 class="text-success">🟢 Futuros</h5>
-
-                {% for p in futuros %}
-
-                    {% if p.prioridad == "critico" %}
-                    <div class="card mb-2 border-danger bg-danger text-white">
-                    {% elif p.prioridad == "urgente" %}
-                    <div class="card mb-2 border-warning">
-                    {% elif p.prioridad == "medio" %}
-                    <div class="card mb-2 border-info">
-                    {% else %}
-                    <div class="card mb-2 border-success">
-                    {% endif %}
-
-                        <div class="card-body">
-
-                            <a href="{{ url_for('ver_expediente', id=p.expediente_id) }}">
-                                {{ p.caratula }}
-                            </a>
-
-                            <p>{{ p.tipo }} - {{ p.vence }}</p>
-
-                            <p>
-                            {% if p.prioridad == "critico" %}
-                            🔥 VENCIDO — acción inmediata
-                            {% elif p.prioridad == "urgente" %}
-                            ⚠️ Vence pronto
-                            {% elif p.prioridad == "medio" %}
-                            ⏳ En plazo
-                            {% else %}
-                            ✔ Sin urgencia
-                            {% endif %}
-                            </p>
-
-                            <a href="/generar/{{ p.id }}" class="btn btn-sm btn-success">
-                                Generar
-                            </a>
-
-                        </div>
-                    </div>
-
-                {% endfor %}
             </div>
 
         </div>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="col-md-4">
+
+        <h3 class="text-success">
+            🟢 Futuros
+        </h3>
+
+        {% for p in futuros %}
+
+        <div class="card mb-2 border-success">
+
+            <div class="card-body">
+
+                <h5>
+
+                    <a href="/expediente/{{ p.expediente_id }}">
+                        {{ p.caratula }}
+                    </a>
+
+                </h5>
+
+                <p>
+                    {{ p.tipo }} - {{ p.vence }}
+                </p>
+
+                <p>
+                    <b>{{ p.accion }}</b>
+                </p>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
 
     </div>
 
 </div>
 
-</body>
-</html>
+{% endblock %}

@@ -1,3 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}
+Nueva regla
+{% endblock %}
+
+{% block content %}
+
+
 <h1>➕ Nueva regla</h1>
 
 <form method="POST" action="/reglas/crear">
@@ -25,3 +34,5 @@
     <button class="btn btn-success">Guardar</button>
 
 </form>
+
+{% endblock %}

@@ -7,13 +7,12 @@ from app.models.plazo import Plazo
 from app.models.expediente import Expediente
 from app.models.documento import Documento
 from app.models.actuacion import Actuacion
-from flask import flash, request
 from app.db.db import SessionLocal
-from sqlalchemy.orm import joinedload
 from datetime import datetime, date
-
+from sqlalchemy.orm import joinedload
+from flask import request, flash
+from app.models.regla import ReglaProcesal
 from app.services.regla_service import aplicar_reglas
-'from app.services.rules_engine import regla_traslado'
 from app.services.prioridad_service import calcular_prioridad
 
 app = Flask(__name__)
@@ -267,14 +266,6 @@ def crear_actuacion(id):
 
     return redirect(f"/expediente/{id}")
 
-@app.route("/reglas")
-def ver_reglas():
-    db = SessionLocal()
-    reglas = db.query(ReglaProcesal).all()
-    db.close()
-
-    return render_template("reglas.html", reglas=reglas)
-
 @app.route("/reglas/nueva")
 def nueva_regla():
     return render_template("nueva_regla.html")
@@ -310,6 +301,87 @@ def nueva_actuacion(id):
         return redirect(url_for("ver_expediente", id=id))
 
     return render_template("nueva_actuacion.html")
+
+@app.route("/reglas")
+def listar_reglas():
+
+    db = SessionLocal()
+
+    reglas = db.query(ReglaProcesal).all()
+
+    db.close()
+
+    return render_template(
+        "reglas.html",
+        reglas=reglas
+    )
+
+@app.route("/reglas/<int:id>/toggle")
+def toggle_regla(id):
+
+    db = SessionLocal()
+
+    regla = db.get(ReglaProcesal, id)
+
+    regla.activa = not regla.activa
+
+    db.commit()
+
+    db.close()
+
+    return redirect("/reglas")
+
+@app.route("/reglas/<int:id>/editar")
+def editar_regla(id):
+
+    db = SessionLocal()
+
+    regla = db.get(ReglaProcesal, id)
+
+    db.close()
+
+    return render_template(
+        "editar_regla.html",
+        regla=regla
+    )
+
+@app.route("/reglas/<int:id>/update", methods=["POST"])
+def update_regla(id):
+
+    db = SessionLocal()
+
+    regla = db.get(ReglaProcesal, id)
+
+    regla.evento = request.form["evento"]
+
+    regla.estado_destino = request.form["estado_destino"]
+
+    regla.template = request.form["template"]
+
+    regra_dias = request.form["dias_plazo"]
+
+    if regra_dias:
+        regla.dias_plazo = int(regra_dias)
+
+    db.commit()
+
+    db.close()
+
+    return redirect("/reglas")
+
+@app.route("/expedientes")
+def listar_expedientes():
+
+    db = SessionLocal()
+
+    expedientes = db.query(Expediente).all()
+
+    db.close()
+
+    return render_template(
+        "expedientes.html",
+        expedientes=expedientes
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
