@@ -69,6 +69,28 @@ def dashboard():
         expedientes=expedientes
     )
 
+@app.route("/expediente/nuevo", methods=["GET", "POST"])
+def nuevo_expediente():
+    db = SessionLocal()
+
+    if request.method == "POST":
+        caratula = request.form["caratula"]
+        jurisdiccion = request.form["jurisdiccion"]
+        tipo = request.form["tipo"]
+
+        exp = Expediente(
+            caratula=caratula,
+            jurisdiccion=jurisdiccion,
+            tipo_proceso=tipo
+        )
+
+        db.add(exp)
+        db.commit()
+
+        return redirect(url_for("dashboard"))
+
+    return render_template("nuevo_expediente.html")
+
 @app.route("/generar/<int:plazo_id>")
 def generar(plazo_id):
     generar_documento_desde_plazo(plazo_id)
@@ -218,11 +240,6 @@ def cumplir_plazo(id):
 
     return redirect(f"/expediente/{expediente_id}")
 
-@app.route("/expediente/<int:id>/actuacion/nueva")
-def nueva_actuacion(id):
-    return render_template("nueva_actuacion.html", expediente_id=id)
-
-
 @app.route("/expediente/<int:id>/actuacion/nueva", methods=["POST"])
 def crear_actuacion(id):
     db = SessionLocal()
@@ -280,6 +297,19 @@ def crear_regla():
     db.close()
 
     return redirect("/reglas")
+
+@app.route("/expediente/<int:id>/actuacion/nueva", methods=["GET", "POST"])
+def nueva_actuacion(id):
+    if request.method == "POST":
+        tipo = request.form["tipo"]
+        descripcion = request.form["descripcion"]
+        
+        aplicar_reglas(id, tipo, descripcion)
+        
+        flash("Actuación creada y reglas ejecutadas")
+        return redirect(url_for("ver_expediente", id=id))
+
+    return render_template("nueva_actuacion.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

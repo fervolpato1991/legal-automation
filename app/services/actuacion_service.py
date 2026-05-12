@@ -4,17 +4,13 @@ from app.db.db import SessionLocal
 from app.models.actuacion import Actuacion
 from app.models.expediente import Expediente
 
-from app.services.rules_engine import ejecutar_reglas
+from app.services.regla_service import aplicar_reglas
 
 
-def procesar_actuacion(expediente_id, tipo, descripcion, contexto_extra=None):
+def procesar_actuacion(expediente_id, tipo, descripcion):
     db = SessionLocal()
 
     exp = db.get(Expediente, expediente_id)
-
-    if not exp:
-        db.close()
-        return False
 
     act = Actuacion(
         tipo=tipo,
@@ -25,7 +21,7 @@ def procesar_actuacion(expediente_id, tipo, descripcion, contexto_extra=None):
 
     db.add(act)
 
-    ejecutar_reglas(exp, act, db)
+    aplicar_reglas(exp, act, db)
 
     db.commit()
     db.close()

@@ -12,3 +12,6 @@ class ReglaProcesal(Base):
     template = Column(String)
     crear_plazo = Column(Boolean)
     dias_plazo = Column(Integer)
+    condicion = Column(String)
+    activa = Column(Boolean, default=True)
+    unica = Column(Boolean, default=False)

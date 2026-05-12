@@ -1,15 +1,9 @@
 SEÑOR JUEZ:
 
-{{ actor.nombre }}, por derecho propio, con domicilio en {{ actor.domicilio }}, a V.S. me presento y digo:
+{{ expediente.partes[1].nombre }}, por derecho propio/representación legal, en autos caratulados "{{ expediente.caratula }}", a V.S. digo:
 
-I. OBJETO
+Que vengo en tiempo y forma a interponer Demanda.
 
-Que vengo a promover acción de amparo contra {{ demandado.nombre }}, a fin de que se ordene {{ objeto }}.
 
-II. HECHOS
-
-{{ hechos }}
-
-Proveer de conformidad,
 
 SERÁ JUSTICIA.

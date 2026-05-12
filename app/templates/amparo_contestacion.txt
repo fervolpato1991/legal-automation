@@ -1,0 +1,11 @@
+SEÑOR JUEZ:
+
+Nombre, por derecho propio/representación legal, en autos caratulados "{{ expediente.caratula }}", a V.S. digo:
+
+Que vengo en tiempo y forma a contestar el traslado conferido.
+
+Niego los hechos y el derecho invocados por la contraparte.
+
+Por lo expuesto, solicito el rechazo de la demanda.
+
+SERÁ JUSTICIA.

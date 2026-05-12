@@ -8,4 +8,4 @@ env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
 
 def render_template(nombre_template, contexto):
     template = env.get_template(nombre_template)
-    return template.render(contexto)
+    return template.render(**contexto)
