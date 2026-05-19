@@ -6,116 +6,170 @@ Expediente
 
 {% block content %}
 
-    <title>Expediente</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<h1>{{ exp.caratula }}</h1>
-
-<hr>
-
-<h3>📌 Datos</h3>
-<ul>
-    <li>Jurisdicción: {{ exp.jurisdiccion }}</li>
-    <li>Tipo: {{ exp.tipo_proceso }}</li>
-</ul>
+<h1>
+    {{ exp.caratula }}
+</h1>
 
 <hr>
 
-<h3>👥 Partes</h3>
-<ul>
-{% for p in exp.partes %}
-    <li>{{ p.tipo }}: {{ p.nombre }}</li>
-{% endfor %}
-</ul>
+<div class="row">
 
-<hr>
+    <div class="col-md-6">
 
-<h3>⏳ Plazos</h3>
-<ul>
-{% for pl in exp.plazos %}
-    <li>
-        {{ pl.tipo }} - {{ pl.fecha_vencimiento }}
-        {% if not pl.cumplido %}
-            <a href="/generar/{{ pl.id }}" class="btn btn-sm btn-primary">Generar</a>
-            <a href="/plazo/{{ pl.id }}/cumplir" class="btn btn-sm btn-success">
-                Marcar cumplido
-            </a>
-        {% else %}
-          <span class="badge bg-success">✔ Cumplido</span>
-        {% endif %}
-    </li>
-{% endfor %}
-</ul>
+        <div class="card mb-3">
 
-<hr>
+            <div class="card-body">
 
-<h3>📄 Documentos</h3>
-<ul>
-{% for d in exp.documentos %}
-    <li>
-    {{ d.tipo }} -
-    <a href="/documento/{{ d.id }}">Abrir</a>
-    <a href="/documento/{{ d.id }}" class="btn btn-sm btn-outline-primary">
-        Ver
-    </a>
-</li>
-{% endfor %}
-</ul>
-<hr>
+                <h4>
+                    📌 Datos
+                </h4>
 
-<h3>📚 Actuaciones</h3>
+                <p>
+                    <strong>Jurisdicción:</strong>
+                    {{ exp.jurisdiccion }}
+                </p>
 
-<ul>
-{% for a in exp.actuaciones %}
-    <li>
-        {{ a.fecha }} - {{ a.tipo }} - {{ a.descripcion }}
-    </li>
-{% endfor %}
-</ul>
-<a href="/expediente/{{ exp.id }}/actuacion/nueva" class="btn btn-primary mb-3">
-    ➕ Nueva actuación
-</a>
+                <p>
+                    <strong>Tipo:</strong>
+                    {{ exp.tipo_proceso }}
+                </p>
 
-<hr>
-
-<h3>🕒 Timeline</h3>
-
-<h5>🔴 Hoy</h5>
-{% for e in eventos_agrupados.hoy %}
-<div class="card mb-2 border-danger">
-    <div class="card-body">
-        <strong>{{ e.titulo }}</strong><br>
-        <small>{{ e.detalle }}</small>
-
-        {% if e.accion %}
-            <div class="mt-2">
-                👉 {{ e.accion }}
             </div>
-        {% endif %}
-    </div>
-</div>
-{% endfor %}
 
-<h5>🟡 Reciente</h5>
-{% for e in eventos_agrupados.reciente %}
-<div class="card mb-2 border-warning">
+        </div>
+        <a href="/expediente/{{ exp.id }}/actuacion/nueva"
+        class="btn btn-primary mb-3">
+         ➕ Nueva actuación
+        </a>
+        
+    </div>
+
+    <div class="col-md-6">
+
+        <div class="card mb-3">
+
+            <div class="card-body">
+
+                <h4>
+                    👥 Partes
+                </h4>
+
+                <ul>
+
+                {% for p in exp.partes %}
+
+                    <li>
+                        {{ p.tipo }}: {{ p.nombre }}
+                    </li>
+
+                {% endfor %}
+
+                </ul>
+
+            </div>
+
+        </div>
+
+        <div class="card mb-3">
+
+            <div class="card-body">
+                
+                <h4>
+                    📄 Documentos
+                </h4>
+
+                <div id="documentos-container">
+
+                    {% include "components/documentos_list.html" %}
+
+                </div>
+
+         </div>
+
+</div>
+    </div>
+
+</div>
+
+<div class="card mb-3">
+
     <div class="card-body">
-        <strong>{{ e.titulo }}</strong><br>
-        <small>{{ e.detalle }}</small>
-    </div>
-</div>
-{% endfor %}
 
-<h5>🔵 Histórico</h5>
-{% for e in eventos_agrupados.historico %}
-<div class="card mb-2 border-secondary">
-    <div class="card-body">
-        <strong>{{ e.titulo }}</strong><br>
-        <small>{{ e.detalle }}</small>
-    </div>
-</div>
-{% endfor %}
+        <h4>
+            ⏳ Plazos
+        </h4>
 
+        {% for pl in exp.plazos %}
+        
+        <div id="plazo-{{ pl.id }}">
+            
+            <div class="border rounded p-2 mb-2">
+
+                <strong>
+                    {{ pl.tipo }}
+                </strong>
+
+                <br>
+                {{ pl.fecha_vencimiento }}
+
+                <br><br>
+
+                {% if not pl.cumplido %}
+
+                <button
+                  hx-get="/generar/{{ pl.id }}"
+                  hx-target="#documentos-container"
+                  hx-swap="innerHTML"
+                  class="btn btn-primary btn-sm">
+                  Generar
+
+                <span class="htmx-indicator spinner-border spinner-border-sm"></span>
+            </button>
+
+                <button
+                
+                hx-get="/plazo/{{ pl.id }}/cumplir"
+                hx-target="#plazo-{{ pl.id }}"
+                hx-swap="outerHTML"
+                class="btn btn-success btn-sm">
+
+                Cumplido
+            </button>
+
+            {% else %}
+
+            <span class="badge bg-success">
+                ✔ Cumplido
+            </span>
+
+            {% endif %}
+
+        </div>
+
+
+    </div>
+
+    {% endfor %}
+
+ </div>
+
+</div>
+<h3>
+    🕒 Timeline
+</h3>
+
+<div
+
+    id="timeline-container"
+
+    hx-get="/expediente/{{ exp.id }}/timeline"
+
+    hx-trigger="every 5s"
+
+    hx-swap="innerHTML">
+
+    {% include "components/timeline.html" %}
+
+</div>
 
 {% endblock %}
-

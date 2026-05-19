@@ -1,0 +1,35 @@
+<ul class="list-group">
+
+{% for e in eventos %}
+
+    <li class="list-group-item">
+
+        <strong>
+            {{ e.fecha }}
+        </strong>
+
+        |
+
+        {% if e.tipo == "ACTUACION" %}
+            📚
+        {% elif e.tipo == "PLAZO" %}
+            ⏳
+        {% elif e.tipo == "DOCUMENTO" %}
+            📄
+        {% endif %}
+
+        <strong>
+            {{ e.titulo }}
+        </strong>
+
+        <br>
+
+        <small>
+            {{ e.detalle }}
+        </small>
+
+    </li>
+
+{% endfor %}
+
+</ul>

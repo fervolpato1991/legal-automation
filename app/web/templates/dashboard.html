@@ -7,7 +7,7 @@ Dashboard
 {% block content %}
 
 <h1 class="mb-4">
-    📊 Dashboard Jurídico
+    📊 Dashboard
 </h1>
 
 <div class="row">
@@ -20,29 +20,29 @@ Dashboard
 
         {% for p in vencidos %}
 
-        <div class="card mb-2 border-danger">
+            <div class="card mb-3 border-danger shadow-sm">
 
-            <div class="card-body">
+                <div class="card-body">
 
-                <h5>
+                    <h5>
+                        <a href="/expediente/{{ p.expediente_id }}">
+                            {{ p.caratula }}
+                        </a>
+                    </h5>
 
-                    <a href="/expediente/{{ p.expediente_id }}">
-                        {{ p.caratula }}
-                    </a>
+                    <p>
+                        {{ p.tipo }} - {{ p.vence }}
+                    </p>
 
-                </h5>
+                    <p>
+                        <strong>
+                            {{ p.accion }}
+                        </strong>
+                    </p>
 
-                <p>
-                    {{ p.tipo }} - {{ p.vence }}
-                </p>
-
-                <p>
-                    <b>{{ p.accion }}</b>
-                </p>
+                </div>
 
             </div>
-
-        </div>
 
         {% endfor %}
 
@@ -56,29 +56,23 @@ Dashboard
 
         {% for p in proximos %}
 
-        <div class="card mb-2 border-warning">
+            <div class="card mb-3 border-warning shadow-sm">
 
-            <div class="card-body">
+                <div class="card-body">
 
-                <h5>
+                    <h5>
+                        <a href="/expediente/{{ p.expediente_id }}">
+                            {{ p.caratula }}
+                        </a>
+                    </h5>
 
-                    <a href="/expediente/{{ p.expediente_id }}">
-                        {{ p.caratula }}
-                    </a>
+                    <p>
+                        {{ p.tipo }} - {{ p.vence }}
+                    </p>
 
-                </h5>
-
-                <p>
-                    {{ p.tipo }} - {{ p.vence }}
-                </p>
-
-                <p>
-                    <b>{{ p.accion }}</b>
-                </p>
+                </div>
 
             </div>
-
-        </div>
 
         {% endfor %}
 
@@ -92,33 +86,48 @@ Dashboard
 
         {% for p in futuros %}
 
-        <div class="card mb-2 border-success">
+            <div class="card mb-3 border-success shadow-sm">
 
-            <div class="card-body">
+                <div class="card-body">
 
-                <h5>
+                    <h5>
+                        <a href="/expediente/{{ p.expediente_id }}">
+                            {{ p.caratula }}
+                        </a>
+                    </h5>
 
-                    <a href="/expediente/{{ p.expediente_id }}">
-                        {{ p.caratula }}
-                    </a>
+                    <p>
+                        {{ p.tipo }} - {{ p.vence }}
+                    </p>
 
-                </h5>
-
-                <p>
-                    {{ p.tipo }} - {{ p.vence }}
-                </p>
-
-                <p>
-                    <b>{{ p.accion }}</b>
-                </p>
+                </div>
 
             </div>
-
-        </div>
 
         {% endfor %}
 
     </div>
+
+</div>
+
+<hr>
+
+<h3>
+    📂 Todos los expedientes
+</h3>
+
+<div class="list-group">
+
+{% for e in expedientes %}
+
+    <a href="/expediente/{{ e.id }}"
+       class="list-group-item list-group-item-action">
+
+        {{ e.caratula }}
+
+    </a>
+
+{% endfor %}
 
 </div>
 

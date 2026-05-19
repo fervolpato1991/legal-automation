@@ -1,0 +1,30 @@
+<ul class="list-group">
+
+{% for d in exp.documentos %}
+
+    <li class="list-group-item d-flex justify-content-between">
+
+        <div>
+
+            <strong>
+                {{ d.tipo }}
+            </strong>
+
+        </div>
+
+        <div>
+
+            <a href="/documento/{{ d.id }}"
+               class="btn btn-sm btn-outline-primary">
+
+                Ver
+
+            </a>
+
+        </div>
+
+    </li>
+
+{% endfor %}
+
+</ul>

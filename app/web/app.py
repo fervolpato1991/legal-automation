@@ -90,11 +90,29 @@ def nuevo_expediente():
 
     return render_template("nuevo_expediente.html")
 
-@app.route("/generar/<int:plazo_id>")
-def generar(plazo_id):
-    generar_documento_desde_plazo(plazo_id)
-    flash("Documento generado correctamente")
-    return redirect(url_for("dashboard"))
+@app.route("/generar/<int:id>")
+def generar_documento(id):
+
+    db = SessionLocal()
+
+    plazo = db.get(Plazo, id)
+
+    generar_documento_desde_plazo(plazo.id)
+
+    db.refresh(plazo)
+
+    expediente = db.query(Expediente).options(
+        joinedload(Expediente.documentos)
+    ).get(plazo.expediente_id)
+
+    response = render_template(
+        "components/documentos_list.html",
+        exp=expediente
+    )
+
+    db.close()
+
+    return response
 
 @app.route("/expediente/<int:id>")
 def ver_expediente(id):
@@ -223,21 +241,25 @@ def ver_documento(id):
 
 @app.route("/plazo/<int:id>/cumplir")
 def cumplir_plazo(id):
+
     db = SessionLocal()
 
-    plazo = db.query(Plazo).options(
-        joinedload(Plazo.expediente)
-    ).get(id)
+    plazo = db.get(Plazo, id)
 
-    if plazo:
-        plazo.cumplido = True
-        db.commit()
+    plazo.cumplido = True
 
-        expediente_id = plazo.expediente_id
+    db.commit()
+
+    db.refresh(plazo)
+
+    response = render_template(
+        "components/plazo_item.html",
+        pl=plazo
+    )
 
     db.close()
 
-    return redirect(f"/expediente/{expediente_id}")
+    return response
 
 @app.route("/expediente/<int:id>/actuacion/nueva", methods=["POST"])
 def crear_actuacion(id):
@@ -289,18 +311,45 @@ def crear_regla():
 
     return redirect("/reglas")
 
-@app.route("/expediente/<int:id>/actuacion/nueva", methods=["GET", "POST"])
+@app.route(
+    "/expediente/<int:id>/actuacion/nueva",
+    methods=["GET", "POST"]
+)
 def nueva_actuacion(id):
-    if request.method == "POST":
-        tipo = request.form["tipo"]
-        descripcion = request.form["descripcion"]
-        
-        aplicar_reglas(id, tipo, descripcion)
-        
-        flash("Actuación creada y reglas ejecutadas")
-        return redirect(url_for("ver_expediente", id=id))
 
-    return render_template("nueva_actuacion.html")
+    db = SessionLocal()
+
+    expediente = db.get(Expediente, id)
+
+    if request.method == "POST":
+
+        actuacion = Actuacion(
+            tipo=request.form["tipo"],
+            descripcion=request.form["descripcion"],
+            fecha=date.today(),
+            expediente_id=id
+        )
+
+        db.add(actuacion)
+
+        aplicar_reglas(expediente, actuacion, db)
+
+        db.commit()
+
+        db.close()
+
+        flash("Actuación creada correctamente")
+
+        return redirect(
+            url_for("ver_expediente", id=id)
+        )
+
+    db.close()
+
+    return render_template(
+        "nueva_actuacion.html",
+        exp=expediente
+    )
 
 @app.route("/reglas")
 def listar_reglas():
@@ -382,6 +431,57 @@ def listar_expedientes():
         "expedientes.html",
         expedientes=expedientes
     )
+
+@app.route("/expediente/<int:id>/timeline")
+def timeline_partial(id):
+
+    db = SessionLocal()
+
+    exp = db.query(Expediente).options(
+        joinedload(Expediente.actuaciones),
+        joinedload(Expediente.documentos),
+        joinedload(Expediente.plazos)
+    ).get(id)
+
+    eventos = []
+
+    for a in exp.actuaciones:
+        eventos.append({
+            "fecha": a.fecha,
+            "tipo": "ACTUACION",
+            "titulo": a.tipo,
+            "detalle": a.descripcion
+        })
+
+    for d in exp.documentos:
+        eventos.append({
+            "fecha": d.created_at,
+            "tipo": "DOCUMENTO",
+            "titulo": d.tipo,
+            "detalle": "Documento generado"
+        })
+
+    for p in exp.plazos:
+        eventos.append({
+            "fecha": p.fecha_vencimiento,
+            "tipo": "PLAZO",
+            "titulo": p.tipo,
+            "detalle": "Vencimiento procesal"
+        })
+
+    eventos.sort(
+        key=lambda e: str(e["fecha"]),
+        reverse=True
+    )
+
+    response = render_template(
+        "components/timeline.html",
+        eventos=eventos
+    )
+
+    db.close()
+
+    return response
 
 if __name__ == "__main__":
     app.run(debug=True)

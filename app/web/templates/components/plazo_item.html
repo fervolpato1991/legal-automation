@@ -1,0 +1,39 @@
+<div id="plazo-{{ pl.id }}">
+
+    <div class="border rounded p-2 mb-2">
+
+        <strong>
+            {{ pl.tipo }}
+        </strong>
+
+        <br>
+
+        {{ pl.fecha_vencimiento }}
+
+        <br><br>
+
+        {% if not pl.cumplido %}
+
+            <button
+
+                hx-get="/plazo/{{ pl.id }}/cumplir"
+                hx-target="#plazo-{{ pl.id }}"
+                hx-swap="outerHTML"
+
+                class="btn btn-success btn-sm">
+
+                Cumplido
+
+            </button>
+
+        {% else %}
+
+            <span class="badge bg-success">
+                ✔ Cumplido
+            </span>
+
+        {% endif %}
+
+    </div>
+
+</div>
