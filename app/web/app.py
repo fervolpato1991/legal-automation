@@ -7,6 +7,7 @@ from app.models.plazo import Plazo
 from app.models.expediente import Expediente
 from app.models.documento import Documento
 from app.models.actuacion import Actuacion
+from app.models.evento import EventoSistema
 from app.db.db import SessionLocal
 from datetime import datetime, date
 from sqlalchemy.orm import joinedload
@@ -37,7 +38,7 @@ def dashboard():
 
         for p in plazos:
             sugerencia = sugerir_accion(p)
-            prioridad = calcular_prioridad(p)
+            prioridad = calcular_prioridad(p.expediente)
 
             resultado.append({
                 "id": p.id,
@@ -48,14 +49,15 @@ def dashboard():
                 "accion": sugerencia["accion"] if sugerencia else "",
                 "prioridad": prioridad
             })
-
-        resultado.sort(
-            key=lambda x: (
-                PRIORIDAD_ORDEN.get(x["prioridad"], 99),
-                x["vence"] if x["vence"] else ""
+            resultado.sort(
+             key=lambda x: (
+                    PRIORIDAD_ORDEN.get(
+                            x["prioridad"]["nivel"],
+                             99
+                     ),
+                     x["vence"]
             )
         )
-
         return resultado
 
     expedientes = db.query(Expediente).all()
@@ -482,6 +484,22 @@ def timeline_partial(id):
     db.close()
 
     return response
+
+@app.route("/eventos")
+def ver_eventos():
+
+    db = SessionLocal()
+
+    eventos = db.query(EventoSistema)\
+        .order_by(EventoSistema.fecha.desc())\
+        .all()
+
+    db.close()
+
+    return render_template(
+        "eventos.html",
+        eventos=eventos
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

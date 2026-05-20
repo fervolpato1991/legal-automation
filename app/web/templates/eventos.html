@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="mb-4">📚 Eventos del sistema</h1>
+
+<table class="table table-striped">
+
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    {% for e in eventos %}
+        <tr>
+
+            <td>{{ e.fecha }}</td>
+
+            <td>
+
+                {% if e.tipo == "DOCUMENTO" %}
+                    📄
+                {% elif e.tipo == "PLAZO" %}
+                    ⏳
+                {% elif e.tipo == "ESTADO" %}
+                    ⚙️
+                {% endif %}
+
+                {{ e.tipo }}
+
+            </td>
+
+            <td>{{ e.descripcion }}</td>
+
+        </tr>
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}

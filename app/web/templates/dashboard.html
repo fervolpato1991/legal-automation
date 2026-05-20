@@ -40,6 +40,26 @@ Dashboard
                         </strong>
                     </p>
 
+                    <div class="mb-2">
+                        {% if p.prioridad.nivel == "CRITICA" %}
+                    <span class="badge bg-danger">
+                        🔥 CRÍTICA
+                    </span>
+                    {% elif p.prioridad.nivel == "ALTA" %}
+                    <span class="badge bg-warning text-dark">
+                        ⚠️ ALTA
+                    </span>
+                    {% elif p.prioridad.nivel == "MEDIA" %}
+                    <span class="badge bg-primary">
+                        📌 MEDIA
+                    </span>
+                    {% else %}
+                    <span class="badge bg-secondary">
+                        ✅ BAJA
+                    </span>
+                    {% endif %}
+                        Score: {{ p.prioridad.score }}
+                    </div>
                 </div>
 
             </div>
@@ -69,8 +89,30 @@ Dashboard
                     <p>
                         {{ p.tipo }} - {{ p.vence }}
                     </p>
+                 <div class="mb-2">
+                    {% if p.prioridad.nivel == "CRITICA" %}
+                     <span class="badge bg-danger">
+                        🔥 CRÍTICA
+                    </span>
 
+                    {% elif p.prioridad.nivel == "ALTA" %}
+                    <span class="badge bg-warning text-dark">
+                        ⚠️ ALTA
+                    </span>
+                    {% elif p.prioridad.nivel == "MEDIA" %}
+                    <span class="badge bg-primary">
+                        📌 MEDIA
+                    </span>
+
+                    {% else %}
+                    <span class="badge bg-secondary">
+                        ✅ BAJA
+                    </span>
+                    {% endif %}
+                    Score: {{ p.prioridad.score }}
                 </div>
+
+              </div>
 
             </div>
 
@@ -100,6 +142,34 @@ Dashboard
                         {{ p.tipo }} - {{ p.vence }}
                     </p>
 
+                    <div class="mb-2">
+                        {% if p.prioridad.nivel == "CRITICA" %}
+                        <span class="badge bg-danger">
+                            🔥 CRÍTICA
+                        </span>
+                        {% elif p.prioridad.nivel == "ALTA" %}
+                        <span class="badge bg-warning text-dark">
+                            ⚠️ ALTA
+                        </span>
+                        {% elif p.prioridad.nivel == "MEDIA" %}
+                        <span class="badge bg-primary">
+                            📌 MEDIA
+                        </span>
+                        {% else %}
+                        <span class="badge bg-secondary">
+                            ✅ BAJA
+                        </span>
+
+                        {% endif %}
+
+                        Score: {{ p.prioridad.score }}
+
+                        <ul>
+                            {% for m in p.prioridad.motivos %}
+                            <li>{{ m }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
 
             </div>

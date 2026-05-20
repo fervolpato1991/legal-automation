@@ -11,10 +11,12 @@ class Expediente(Base):
     jurisdiccion = Column(String)
     juzgado = Column(String)
     tipo_proceso = Column(String)
+    
     estado_id = Column(Integer, ForeignKey("estados_procesales.id"))
 
-    estado = relationship("EstadoProcesal")
+    estado = relationship("EstadoProcesal", back_populates="expedientes")
     partes = relationship("Parte", back_populates="expediente")
     actuaciones = relationship("Actuacion", back_populates="expediente")
     plazos = relationship("Plazo", back_populates="expediente")
     documentos = relationship("Documento", back_populates="expediente")
+    historial_estados = relationship("HistorialEstado", back_populates="expediente", cascade="all, delete-orphan")

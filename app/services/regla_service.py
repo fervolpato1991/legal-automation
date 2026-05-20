@@ -6,7 +6,7 @@ from app.models.documento import Documento
 
 from app.services.workflow_service import cambiar_estado
 from app.services.template_engine import render_template
-
+from app.services.event_service import registrar_evento
 
 def evaluar_condicion(regla, expediente, db):
     if not regla.condicion:
@@ -37,7 +37,6 @@ def aplicar_reglas(expediente, actuacion, db):
         if not evaluar_condicion(regla, expediente, db):
             continue
 
-        # ⚠️ evitar duplicación lógica
         if regla.unica:
             existente = db.query(Documento).filter_by(
                 expediente_id=expediente.id,
@@ -50,7 +49,16 @@ def aplicar_reglas(expediente, actuacion, db):
 
         # 🔁 estado
         if regla.estado_destino:
-            cambiar_estado(expediente, regla.estado_destino, db)
+            print("⚙️ Ejecutando cambio de estado")
+            print("Estado destino:", regla.estado_destino)
+            
+            cambiar_estado(expediente, regla.estado_destino, db, actuacion)
+            
+            registrar_evento(
+                db,
+                "ESTADO",
+                 f"Expediente {expediente.id} cambió a estado {regla.estado_destino}"
+            )
 
         # ⏳ plazo
         if regla.crear_plazo:
@@ -69,6 +77,12 @@ def aplicar_reglas(expediente, actuacion, db):
                     expediente_id=expediente.id
                 )
                 db.add(nuevo_plazo)
+
+                registrar_evento(
+                    db,
+                    "PLAZO",
+                    f"Plazo '{regla.evento}' creado para expediente {expediente.id}"
+                )
 
         if regla.generar_documento:
             existente_doc = db.query(Documento).filter_by(
@@ -92,3 +106,9 @@ def aplicar_reglas(expediente, actuacion, db):
                 )
 
                 db.add(doc)
+
+                registrar_evento(
+                    db,
+                    "DOCUMENTO",
+                    f"Documento '{regla.template}' generado para expediente {expediente.id}"
+                )
