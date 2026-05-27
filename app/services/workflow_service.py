@@ -2,7 +2,7 @@ from app.models.estado import EstadoProcesal
 from app.models.historial_estado import HistorialEstado
 from datetime import datetime
 
-def cambiar_estado(expediente, nuevo_estado, db, actuacion=None):
+def cambiar_estado(expediente, nuevo_estado, db, actuacion=None, regla=None):
 
     estado_anterior = None
 
@@ -20,6 +20,7 @@ def cambiar_estado(expediente, nuevo_estado, db, actuacion=None):
     historial = HistorialEstado(
         expediente_id=expediente.id,
         actuacion_id=actuacion.id if actuacion else None,
+        regla_id=regla.id if regla else None,
         estado_anterior=estado_anterior,
         estado_nuevo=nuevo_estado,
         fecha=datetime.utcnow()

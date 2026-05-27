@@ -13,4 +13,23 @@ class Documento(Base):
 
     expediente_id = Column(Integer, ForeignKey("expedientes.id"))
 
-    expediente = relationship("Expediente", back_populates="documentos")
+    actuacion_id = Column(
+        Integer,
+        ForeignKey("actuaciones.id"),
+        nullable=True
+    )
+    
+    regla_id = Column(
+         Integer,
+         ForeignKey("reglas_procesales.id"),
+         nullable=True
+    )
+
+    expediente = relationship(
+        "Expediente",
+        back_populates="documentos"
+    )
+    
+    actuacion = relationship("Actuacion")
+    
+    regla = relationship("ReglaProcesal")

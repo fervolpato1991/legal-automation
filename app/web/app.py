@@ -124,7 +124,8 @@ def ver_expediente(id):
         joinedload(Expediente.partes),
         joinedload(Expediente.plazos),
         joinedload(Expediente.documentos),
-        joinedload(Expediente.actuaciones)
+        joinedload(Expediente.actuaciones),
+        joinedload(Expediente.historial_estados)
     ).get(id)
 
     if not expediente:
@@ -163,6 +164,14 @@ def ver_expediente(id):
             "tipo": "DOCUMENTO",
             "titulo": d.tipo,
             "detalle": "Documento generado"
+        })
+    
+    for h in expediente.historial_estados:
+        eventos.append({
+            "tipo": "ESTADO",
+            "fecha": h.fecha,
+            "titulo": f"{h.estado_anterior or 'INICIO'} → {h.estado_nuevo}",
+            "detalle": "Cambio de estado procesal"
         })
 
     hoy = date.today()
@@ -280,11 +289,10 @@ def crear_actuacion(id):
     expediente = db.query(Expediente).get(id)
 
     db.add(actuacion)
-    db.commit()
-
-    'regla_traslado(expediente, actuacion, db)'
+    db.flush()
+    
     aplicar_reglas(expediente, actuacion, db)
-
+    
     db.commit()
     db.close()
 
@@ -500,6 +508,7 @@ def ver_eventos():
         "eventos.html",
         eventos=eventos
     )
+
 
 if __name__ == "__main__":
     app.run(debug=True)

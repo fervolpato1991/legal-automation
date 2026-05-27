@@ -21,6 +21,12 @@ class HistorialEstado(Base):
         nullable=True
     )
 
+    regla_id = Column(
+        Integer,
+        ForeignKey("reglas_procesales.id"),
+        nullable=True
+    )
+
     estado_anterior = Column(String)
 
     estado_nuevo = Column(String)
@@ -33,3 +39,5 @@ class HistorialEstado(Base):
     expediente = relationship("Expediente", back_populates="historial_estados")
 
     actuacion = relationship("Actuacion")
+
+    regla = relationship("ReglaProcesal")

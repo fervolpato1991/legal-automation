@@ -52,12 +52,15 @@ def aplicar_reglas(expediente, actuacion, db):
             print("⚙️ Ejecutando cambio de estado")
             print("Estado destino:", regla.estado_destino)
             
-            cambiar_estado(expediente, regla.estado_destino, db, actuacion)
+            cambiar_estado(expediente, regla.estado_destino, db, actuacion, regla)
             
             registrar_evento(
                 db,
-                "ESTADO",
-                 f"Expediente {expediente.id} cambió a estado {regla.estado_destino}"
+                tipo="CAMBIO_ESTADO",
+                descripcion=f"Expediente cambió a estado {regla.estado_destino}",
+                expediente_id=expediente.id,
+                actuacion_id=actuacion.id,
+                regla_id=regla.id
             )
 
         # ⏳ plazo
@@ -74,14 +77,19 @@ def aplicar_reglas(expediente, actuacion, db):
                     fecha_inicio=date.today(),
                     fecha_vencimiento=date.today() + timedelta(days=regla.dias_plazo or 0),
                     cumplido=False,
-                    expediente_id=expediente.id
+                    expediente_id=expediente.id,
+                    actuacion_id=actuacion.id,
+                    regla_id=regla.id
                 )
                 db.add(nuevo_plazo)
 
                 registrar_evento(
                     db,
-                    "PLAZO",
-                    f"Plazo '{regla.evento}' creado para expediente {expediente.id}"
+                    tipo="PLAZO_CREADO",
+                    descripcion=f"Plazo '{regla.evento}' creado",
+                    expediente_id=expediente.id,
+                    actuacion_id=actuacion.id,
+                    regla_id=regla.id
                 )
 
         if regla.generar_documento:
@@ -102,13 +110,18 @@ def aplicar_reglas(expediente, actuacion, db):
                 doc = Documento(
                     tipo=regla.evento,
                     contenido=contenido,
-                    expediente_id=expediente.id
+                    expediente_id=expediente.id,
+                    actuacion_id=actuacion.id,
+                    regla_id=regla.id
                 )
 
                 db.add(doc)
 
                 registrar_evento(
                     db,
-                    "DOCUMENTO",
-                    f"Documento '{regla.template}' generado para expediente {expediente.id}"
+                    tipo="DOCUMENTO_GENERADO",
+                    descripcion=f"Documento '{regla.template}' generado",
+                    expediente_id=expediente.id,
+                    actuacion_id=actuacion.id,
+                    regla_id=regla.id
                 )
