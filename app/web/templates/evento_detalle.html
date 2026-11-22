@@ -1,0 +1,99 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Detalle del evento #{{ detalle.evento.id }}</h2>
+
+        <a
+            href="{{ url_for(
+                'ver_expediente',
+                id=detalle.expediente.id
+            ) }}"
+            class="btn btn-outline-secondary">
+            Volver al expediente
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Información del evento
+        </div>
+
+        <div class="card-body">
+            <p><strong>Tipo:</strong> {{ detalle.evento.tipo }}</p>
+
+            <p><strong>Fecha:</strong>
+                {{ detalle.evento.fecha.strftime("%d/%m/%Y %H:%M") }}
+            </p>
+
+            <p><strong>Descripción:</strong>
+                {{ detalle.evento.descripcion or "Sin descripción" }}
+            </p>
+
+            <p><strong>Datos adicionales:</strong>
+                {{ detalle.evento.datos or "Sin datos adicionales" }}
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Expediente relacionado
+        </div>
+
+        <div class="card-body">
+            <p><strong>Carátula:</strong> {{ detalle.expediente.caratula }}</p>
+            <p><strong>Número:</strong> {{ detalle.expediente.numero or "No informado" }}</p>
+            <p><strong>Jurisdicción:</strong> {{ detalle.expediente.jurisdiccion or "No informada" }}</p>
+            <p><strong>Juzgado:</strong> {{ detalle.expediente.juzgado or "No informado" }}</p>
+            <p><strong>Tipo de proceso:</strong> {{ detalle.expediente.tipo_proceso or "No informado" }}</p>
+        </div>
+    </div>
+
+    {% if detalle.actuacion %}
+    <div class="card mb-4">
+        <div class="card-header">
+            Actuación relacionada
+        </div>
+
+        <div class="card-body">
+            <p><strong>ID:</strong> {{ detalle.actuacion.id }}</p>
+            <p><strong>Tipo:</strong> {{ detalle.actuacion.tipo }}</p>
+            <p><strong>Fecha:</strong>
+                {{ detalle.actuacion.fecha.strftime("%d/%m/%Y") if detalle.actuacion.fecha else "No informada" }}
+            </p>
+            <p><strong>Descripción:</strong>
+                {{ detalle.actuacion.descripcion or "Sin descripción" }}
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if detalle.regla %}
+    <div class="card mb-4">
+        <div class="card-header">
+            Regla procesal relacionada
+        </div>
+
+        <div class="card-body">
+            <p><strong>ID:</strong> {{ detalle.regla.id }}</p>
+            <p><strong>Evento configurado:</strong> {{ detalle.regla.evento }}</p>
+            <p><strong>Estado destino:</strong> {{ detalle.regla.estado_destino }}</p>
+            <p><strong>Genera documento:</strong> {{ "Sí" if detalle.regla.generar_documento else "No" }}</p>
+            <p><strong>Plantilla:</strong> {{ detalle.regla.template or "No especificada" }}</p>
+            <p><strong>Crea plazo:</strong> {{ "Sí" if detalle.regla.crear_plazo else "No" }}</p>
+            <p><strong>Días de plazo:</strong> {{ detalle.regla.dias_plazo if detalle.regla.dias_plazo is not none else "No especificados" }}</p>
+            <p><strong>Condición:</strong> {{ detalle.regla.condicion or "Sin condición" }}</p>
+            <p><strong>Activa:</strong> {{ "Sí" if detalle.regla.activa else "No" }}</p>
+            <p><strong>Única:</strong> {{ "Sí" if detalle.regla.unica else "No" }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, abort, request, flash
 from app.models.regla import ReglaProcesal
 from app.services.alert_service import obtener_dashboard_plazos
 from app.services.action_rules import sugerir_accion
@@ -11,10 +11,13 @@ from app.models.evento import EventoSistema
 from app.db.db import SessionLocal
 from datetime import datetime, date
 from sqlalchemy.orm import joinedload
-from flask import request, flash
 from app.models.regla import ReglaProcesal
 from app.services.regla_service import aplicar_reglas
 from app.services.prioridad_service import calcular_prioridad
+from app.services.event_service import registrar_evento
+from app.services.timeline_service import obtener_timeline_expediente
+from app.services.workflow_visual_service import generar_mermaid_expediente
+from app.services.inspector_service import obtener_detalle_evento
 
 app = Flask(__name__)
 app.secret_key = "clave-super-secreta"
@@ -272,32 +275,6 @@ def cumplir_plazo(id):
 
     return response
 
-@app.route("/expediente/<int:id>/actuacion/nueva", methods=["POST"])
-def crear_actuacion(id):
-    db = SessionLocal()
-
-    tipo = request.form["tipo"]
-    descripcion = request.form["descripcion"]
-
-    actuacion = Actuacion(
-        tipo=tipo,
-        fecha=date.today(),
-        descripcion=descripcion,
-        expediente_id=id
-    )
-
-    expediente = db.query(Expediente).get(id)
-
-    db.add(actuacion)
-    db.flush()
-    
-    aplicar_reglas(expediente, actuacion, db)
-    
-    db.commit()
-    db.close()
-
-    return redirect(f"/expediente/{id}")
-
 @app.route("/reglas/nueva")
 def nueva_regla():
     return render_template("nueva_regla.html")
@@ -329,37 +306,67 @@ def nueva_actuacion(id):
 
     db = SessionLocal()
 
-    expediente = db.get(Expediente, id)
+    try:
+        expediente = db.get(Expediente, id)
 
-    if request.method == "POST":
+        if expediente is None:
+            abort(404)
 
+        # Mostrar formulario
+        if request.method == "GET":
+            return render_template(
+                "nueva_actuacion.html",
+                exp=expediente
+            )
+
+        # Recibir datos del formulario
+        tipo = request.form.get("tipo", "").strip()
+        descripcion = request.form.get("descripcion", "").strip()
+
+        if not tipo or not descripcion:
+            flash("Debe completar el tipo y la descripción.")
+            return redirect(
+                url_for("nueva_actuacion", id=id)
+            )
+
+        # Crear actuación
         actuacion = Actuacion(
-            tipo=request.form["tipo"],
-            descripcion=request.form["descripcion"],
+            tipo=tipo,
+            descripcion=descripcion,
             fecha=date.today(),
             expediente_id=id
         )
 
         db.add(actuacion)
+        db.flush()
 
+        # Registrar evento asociado
+        registrar_evento(
+            db,
+            tipo="ACTUACION",
+            descripcion=f"Actuación '{tipo}' registrada",
+            expediente_id=expediente.id,
+            actuacion_id=actuacion.id
+        )
+
+        # Aplicar reglas procesales
         aplicar_reglas(expediente, actuacion, db)
 
+        # Confirmar toda la operación
         db.commit()
 
-        db.close()
-
-        flash("Actuación creada correctamente")
+        flash("Actuación creada correctamente.")
 
         return redirect(
             url_for("ver_expediente", id=id)
         )
 
-    db.close()
+    except Exception:
+        db.rollback()
+        raise
 
-    return render_template(
-        "nueva_actuacion.html",
-        exp=expediente
-    )
+    finally:
+        db.close()
 
 @app.route("/reglas")
 def listar_reglas():
@@ -447,51 +454,48 @@ def timeline_partial(id):
 
     db = SessionLocal()
 
-    exp = db.query(Expediente).options(
-        joinedload(Expediente.actuaciones),
-        joinedload(Expediente.documentos),
-        joinedload(Expediente.plazos)
-    ).get(id)
+    try:
+        exp = db.get(Expediente, id)
 
-    eventos = []
+        if exp is None:
+            abort(404)
 
-    for a in exp.actuaciones:
-        eventos.append({
-            "fecha": a.fecha,
-            "tipo": "ACTUACION",
-            "titulo": a.tipo,
-            "detalle": a.descripcion
-        })
+        eventos = obtener_timeline_expediente(
+            db,
+            exp.id
+        )
 
-    for d in exp.documentos:
-        eventos.append({
-            "fecha": d.created_at,
-            "tipo": "DOCUMENTO",
-            "titulo": d.tipo,
-            "detalle": "Documento generado"
-        })
+        return render_template(
+            "components/timeline.html",
+            eventos=eventos
+        )
 
-    for p in exp.plazos:
-        eventos.append({
-            "fecha": p.fecha_vencimiento,
-            "tipo": "PLAZO",
-            "titulo": p.tipo,
-            "detalle": "Vencimiento procesal"
-        })
+    finally:
+        db.close()
 
-    eventos.sort(
-        key=lambda e: str(e["fecha"]),
-        reverse=True
-    )
+@app.route("/expediente/<int:expediente_id>/evento/<int:evento_id>")
+def ver_detalle_evento(expediente_id, evento_id):
 
-    response = render_template(
-        "components/timeline.html",
-        eventos=eventos
-    )
+    db = SessionLocal()
 
-    db.close()
+    try:
+        detalle = obtener_detalle_evento(
+            db,
+            expediente_id,
+            evento_id
+        )
 
-    return response
+        if detalle is None:
+            abort(404)
+
+        return render_template(
+            "evento_detalle.html",
+            detalle=detalle
+        )
+
+    finally:
+        db.close()
+
 
 @app.route("/eventos")
 def ver_eventos():
@@ -509,6 +513,29 @@ def ver_eventos():
         eventos=eventos
     )
 
+@app.route("/expediente/<int:id>/workflow")
+def workflow_expediente(id):
+
+    db = SessionLocal()
+
+    try:
+        exp = db.get(Expediente, id)
+
+        if exp is None:
+            abort(404)
+
+        graph = generar_mermaid_expediente(
+            db,
+            exp.id
+        )
+
+        return render_template(
+            "components/workflow_graph.html",
+            graph=graph
+        )
+
+    finally:
+        db.close()
 
 if __name__ == "__main__":
     app.run(debug=True)

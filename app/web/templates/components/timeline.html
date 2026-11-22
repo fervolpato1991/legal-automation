@@ -1,32 +1,60 @@
+
 <ul class="list-group">
 
 {% for e in eventos %}
 
-    <li class="list-group-item">
+    <li
+        class="list-group-item timeline-event"
+        data-event-id="{{ e.id }}">
 
         <strong>
-            {{ e.fecha }}
+            {{ e.fecha.strftime("%d/%m/%Y %H:%M") }}
         </strong>
 
         |
 
         {% if e.tipo == "ACTUACION" %}
-            📚
-        {% elif e.tipo == "PLAZO" %}
+            📝
+        {% elif e.tipo == "PLAZO_CREADO" %}
             ⏳
-        {% elif e.tipo == "DOCUMENTO" %}
+        {% elif e.tipo == "DOCUMENTO_GENERADO" %}
             📄
+        {% else %}
+            🔹
         {% endif %}
 
         <strong>
-            {{ e.titulo }}
+            {{ e.tipo }}
         </strong>
 
         <br>
 
         <small>
-            {{ e.detalle }}
+            {{ e.descripcion }}
         </small>
+
+        {% if e.regla_id %}
+            <br>
+            <small class="text-muted">
+                Regla #{{ e.regla_id }}
+            </small>
+        {% endif %}
+
+        <br>
+
+        {% if e.id is defined and e.expediente_id is defined %}
+
+        <a
+        href="{{ url_for(
+            'ver_detalle_evento',
+            expediente_id=e.expediente_id,
+            evento_id=e.id
+            ) }}"
+            class="btn btn-sm btn-outline-primary mt-2">
+            Ver detalle
+        </a>
+
+        {% endif %}
 
     </li>
 

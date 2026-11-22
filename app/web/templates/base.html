@@ -26,6 +26,10 @@
     }
     </style>
 
+    <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/styles.css') }}">
+
 </head>
 
 <body class="bg-light">
@@ -76,6 +80,26 @@
     {% endblock %}
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+    mermaid.initialize({
+        startOnLoad: true
+    });
+
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+
+        mermaid.init(
+            undefined,
+            event.target.querySelectorAll('.mermaid')
+        );
+
+    });
+
+</script>
+
+<script src="{{ url_for('static', filename='js/workflow.js') }}"></script>
 
 </body>
 </html>

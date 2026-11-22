@@ -1,7 +1,22 @@
+﻿# Entornos virtuales
 venv/
+venv_inspeccion/
+.venv/
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
+
+# Base de datos local
 legal_system.db
+
+# Credenciales y configuración local
 .env
+
+# Logs
 *.log
+
+# Sistema operativo
 .DS_Store
+Thumbs.db

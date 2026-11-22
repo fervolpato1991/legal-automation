@@ -1,0 +1,35 @@
+.active-event {
+
+    border-left: 5px solid #dc3545;
+
+    background-color: #fff3f3;
+
+}
+
+.timeline-event {
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+
+}
+
+.timeline-event:hover {
+
+    background-color: #f8f9fa;
+
+}
+
+.active-event {
+
+    border-left: 5px solid #dc3545;
+
+    background-color: #fff3f3;
+
+}
+
+.mermaid svg g.node {
+
+    cursor: pointer;
+
+}

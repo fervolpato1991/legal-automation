@@ -172,4 +172,19 @@ Expediente
 
 </div>
 
+<hr>
+
+<h3>
+    🔀 Workflow visual
+</h3>
+
+<div
+    hx-get="/expediente/{{ exp.id }}/workflow"
+    hx-trigger="load"
+    hx-swap="innerHTML">
+
+    Cargando workflow...
+
+</div>
+
 {% endblock %}
